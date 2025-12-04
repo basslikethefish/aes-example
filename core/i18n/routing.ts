@@ -14,8 +14,8 @@ enum LocalePrefixes {
 const localePrefix = LocalePrefixes.ASNEEDED;
 
 export const routing = defineRouting({
-  locales: ['en', 'es-ES'],
-  defaultLocale: 'en',
+  locales,
+  defaultLocale,
   localePrefix,
   // configure `NEXT_LOCALE` cookie to work inside of the Makeswift Builder's canvas
   localeCookie: {
