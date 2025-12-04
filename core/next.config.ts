@@ -112,11 +112,9 @@ export default async (): Promise<NextConfig> => {
     },
   };
 
-  // Apply withNextIntl to the config
-  nextConfig = withNextIntl(nextConfig);
-
-  // Apply withMakeswift to the config
-  nextConfig = withMakeswift(nextConfig);
+  // Apply plugins in the order specified by Makeswift documentation:
+  // withNextIntl should wrap withMakeswift
+  nextConfig = withNextIntl(withMakeswift(nextConfig));
 
   if (process.env.ANALYZE === 'true') {
     const withBundleAnalyzer = bundleAnalyzer();
