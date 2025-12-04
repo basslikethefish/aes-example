@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { buildConfigSchema } from './schema';
 
 const destinationPath = dirname(fileURLToPath(import.meta.url));
-const CONFIG_FILE = join(destinationPath, 'build-config.json');
+export const CONFIG_FILE = join(destinationPath, 'build-config.json');
 
 // This fn is only intended to be used in the build process (next.config.ts)
 export async function writeBuildConfig(data: unknown) {
