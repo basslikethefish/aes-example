@@ -4,8 +4,8 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { clsx } from 'clsx';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { NextIntlClientProvider } from 'next-intl';
-import { setRequestLocale } from 'next-intl/server';
+import { NextIntlClientProvider, hasLocale } from 'next-intl';
+import { getMessages, setRequestLocale } from 'next-intl/server';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { cache, PropsWithChildren } from 'react';
 
@@ -24,7 +24,8 @@ import { ScriptsFragment } from '~/components/consent-manager/scripts-fragment';
 import { ContainerQueryPolyfill } from '~/components/polyfills/container-query';
 import { scriptsTransformer } from '~/data-transformers/scripts-transformer';
 import { routing } from '~/i18n/routing';
-import { SiteTheme } from '~/lib/makeswift/components/site-theme';
+import { BaseColors } from '~/lib/makeswift/components/site-theme/base-colors';
+import { SiteThemeComponent } from '~/lib/makeswift/components/site-theme';
 import { MakeswiftProvider } from '~/lib/makeswift/provider';
 import { getToastNotification } from '~/lib/server-toast';
 
@@ -114,7 +115,7 @@ export default async function RootLayout({ params, children }: Props) {
   const toastNotificationCookieData = await getToastNotification();
   const siteVersion = await getSiteVersion();
 
-  if (!routing.locales.includes(locale)) {
+  if (!hasLocale(routing.locales, locale)) {
     notFound();
   }
 
@@ -122,18 +123,21 @@ export default async function RootLayout({ params, children }: Props) {
   // https://next-intl-docs.vercel.app/docs/getting-started/app-router#add-setRequestLocale-to-all-layouts-and-pages
   setRequestLocale(locale);
 
+  const messages = await getMessages();
+
   const scripts = scriptsTransformer(rootData.data.site.content.scripts);
   const isCookieConsentEnabled =
     rootData.data.site.settings?.privacy?.cookieConsentEnabled ?? false;
 
   return (
-    <MakeswiftProvider siteVersion={siteVersion}>
-      <html className={clsx(fonts.map((f) => f.variable))} lang={locale}>
-        <head>
-          <SiteTheme />
-        </head>
-        <body className="flex min-h-screen flex-col">
-          <NextIntlClientProvider>
+    <html className={clsx(fonts.map((f) => f.variable))} lang={locale}>
+      <head>
+        <BaseColors />
+      </head>
+      <body className="flex min-h-screen flex-col">
+        <NextIntlClientProvider messages={messages}>
+          <MakeswiftProvider siteVersion={siteVersion}>
+            <SiteThemeComponent />
             <ConsentManager isCookieConsentEnabled={isCookieConsentEnabled} scripts={scripts}>
               <NuqsAdapter>
                 <AnalyticsProvider
@@ -150,12 +154,12 @@ export default async function RootLayout({ params, children }: Props) {
                 </AnalyticsProvider>
               </NuqsAdapter>
             </ConsentManager>
-          </NextIntlClientProvider>
-          <VercelComponents />
-          <ContainerQueryPolyfill />
-        </body>
-      </html>
-    </MakeswiftProvider>
+          </MakeswiftProvider>
+        </NextIntlClientProvider>
+        <VercelComponents />
+        <ContainerQueryPolyfill />
+      </body>
+    </html>
   );
 }
 

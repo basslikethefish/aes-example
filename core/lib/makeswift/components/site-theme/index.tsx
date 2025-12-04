@@ -14,3 +14,8 @@ export const SiteTheme = ({ snapshotId = 'site-theme', label = 'Site Theme' }: P
     <Component label={label} snapshotId={snapshotId} type={COMPONENT_TYPE} />
   </>
 );
+
+// Component-only version for use inside MakeswiftProvider
+export const SiteThemeComponent = ({ snapshotId = 'site-theme', label = 'Site Theme' }: Props) => (
+  <Component label={label} snapshotId={snapshotId} type={COMPONENT_TYPE} />
+);
