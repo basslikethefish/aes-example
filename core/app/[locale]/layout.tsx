@@ -1,6 +1,4 @@
 import { getSiteVersion } from '@makeswift/runtime/next/server';
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/next';
 import { clsx } from 'clsx';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -28,6 +26,7 @@ import { BaseColors } from '~/lib/makeswift/components/site-theme/base-colors';
 import { SiteThemeComponent } from '~/lib/makeswift/components/site-theme';
 import { MakeswiftProvider } from '~/lib/makeswift/provider';
 import { getToastNotification } from '~/lib/server-toast';
+import { VercelComponents } from '~/app/vercel-components';
 
 import '~/lib/makeswift/components';
 
@@ -90,19 +89,6 @@ export async function generateMetadata(): Promise<Metadata> {
     },
   };
 }
-
-const VercelComponents = () => {
-  if (process.env.VERCEL !== '1') {
-    return null;
-  }
-
-  return (
-    <>
-      {process.env.DISABLE_VERCEL_ANALYTICS !== 'true' && <Analytics />}
-      {process.env.DISABLE_VERCEL_SPEED_INSIGHTS !== 'true' && <SpeedInsights />}
-    </>
-  );
-};
 
 interface Props extends PropsWithChildren {
   params: Promise<{ locale: string }>;
