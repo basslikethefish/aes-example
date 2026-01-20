@@ -1,4 +1,4 @@
-import { Group, List, Select, Slot, TextArea, TextInput } from '@makeswift/runtime/controls';
+import { Checkbox, Group, List, Select, Slot, TextArea, TextInput } from '@makeswift/runtime/controls';
 
 import { runtime } from '~/lib/makeswift/runtime';
 
@@ -42,5 +42,10 @@ runtime.registerComponent(MakeswiftProductDetail, {
       }),
       getItemLabel: (section) => section?.title || 'Section',
     }),
+    showFullWidthSlot: Checkbox({
+      label: 'Show full width slot below product detail',
+      defaultValue: false,
+    }),
+    fullWidthSlot: Slot(),
   },
 });

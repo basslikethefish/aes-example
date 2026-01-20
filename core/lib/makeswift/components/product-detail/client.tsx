@@ -44,12 +44,16 @@ interface EditableProps {
   summaryText: string | undefined;
   description: { source: DescriptionSource; slot: ReactNode };
   accordions: Exclude<Awaited<VibesProductDetail['accordions']>, undefined>;
+  showFullWidthSlot: boolean;
+  fullWidthSlot: ReactNode;
 }
 
 const ProductDetailImpl = ({
   summaryText,
   description,
   accordions,
+  showFullWidthSlot,
+  fullWidthSlot,
   product: streamableProduct,
   ...props
 }: Props & EditableProps) => {
@@ -83,25 +87,32 @@ const ProductDetailImpl = ({
   );
 
   return (
-    <Stream fallback={<ProductDetailSkeleton />} value={streamableProduct}>
-      {(product) => (
-        <Stream fallback={<ProductDetailSkeleton />} value={product.accordions}>
-          {(productAccordions) => (
-            <ProductDetail
-              {...{
-                ...props,
-                product: {
-                  ...product,
-                  summary: summaryText,
-                  description: getProductDescription(product),
-                  accordions: getProductAccordions(productAccordions),
-                },
-              }}
-            />
-          )}
-        </Stream>
+    <>
+      <Stream fallback={<ProductDetailSkeleton />} value={streamableProduct}>
+        {(product) => (
+          <Stream fallback={<ProductDetailSkeleton />} value={product.accordions}>
+            {(productAccordions) => (
+              <ProductDetail
+                {...{
+                  ...props,
+                  product: {
+                    ...product,
+                    summary: summaryText,
+                    description: getProductDescription(product),
+                    accordions: getProductAccordions(productAccordions),
+                  },
+                }}
+              />
+            )}
+          </Stream>
+        )}
+      </Stream>
+      {showFullWidthSlot && (
+        <div className="w-full">
+          {fullWidthSlot}
+        </div>
       )}
-    </Stream>
+    </>
   );
 };
 

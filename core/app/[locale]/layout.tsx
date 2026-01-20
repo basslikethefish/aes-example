@@ -116,6 +116,11 @@ export default async function RootLayout({ params, children }: Props) {
   const siteVersion = await getSiteVersion();
 
   if (!hasLocale(routing.locales, locale)) {
+    console.error('[Locale 404]', {
+      requestedLocale: locale,
+      availableLocales: routing.locales,
+      buildConfigLocales: routing.locales,
+    });
     notFound();
   }
 
