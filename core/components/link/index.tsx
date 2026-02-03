@@ -2,9 +2,32 @@
 
 import { ComponentPropsWithRef, ComponentRef, forwardRef, useReducer } from 'react';
 
+import { locales } from '../../i18n/locales';
 import { Link as NavLink, useRouter } from '../../i18n/routing';
 
 type NextLinkProps = Omit<ComponentPropsWithRef<typeof NavLink>, 'prefetch'>;
+
+/**
+ * Strips locale prefix from href if present.
+ * This is needed because Makeswift's "Open Page" links already include the locale prefix,
+ * and next-intl's Link will add another one, resulting in double prefixes like /es-MX/es-MX/page.
+ */
+function stripLocalePrefix(href: string): string {
+  for (const locale of locales) {
+    // Match /locale or /locale/ at the start of the href
+    const prefix = `/${locale}`;
+
+    if (href === prefix) {
+      return '/';
+    }
+
+    if (href.startsWith(`${prefix}/`)) {
+      return href.slice(prefix.length);
+    }
+  }
+
+  return href;
+}
 
 interface PrefetchOptions {
   prefetch?: 'hover' | 'viewport' | 'none';
@@ -29,21 +52,31 @@ export const Link = forwardRef<ComponentRef<'a'>, Props>(
     const [prefetched, setPrefetched] = useReducer(() => true, false);
     const computedPrefetch = computePrefetchProp({ prefetch, prefetchKind });
 
+    // Strip locale prefix if present to avoid double-prefixing
+    // (e.g., Makeswift "Open Page" links already include locale prefix)
+    const normalizedHref =
+      typeof href === 'string'
+        ? stripLocalePrefix(href)
+        : {
+            ...href,
+            pathname: stripLocalePrefix(href.pathname ?? ''),
+          };
+
     const triggerPrefetch = () => {
       if (prefetched) {
         return;
       }
 
-      if (typeof href === 'string') {
+      if (typeof normalizedHref === 'string') {
         // PrefetchKind enum is not exported
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
-        router.prefetch(href, { kind: prefetchKind });
+        router.prefetch(normalizedHref, { kind: prefetchKind });
       } else {
         // PrefetchKind enum is not exported
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
-        router.prefetch(href.href, { kind: prefetchKind });
+        router.prefetch(normalizedHref.pathname, { kind: prefetchKind });
       }
 
       setPrefetched();
@@ -52,7 +85,7 @@ export const Link = forwardRef<ComponentRef<'a'>, Props>(
     return (
       <NavLink
         className={className}
-        href={href}
+        href={normalizedHref}
         onMouseEnter={prefetch === 'hover' ? triggerPrefetch : undefined}
         onTouchStart={prefetch === 'hover' ? triggerPrefetch : undefined}
         prefetch={computedPrefetch}
