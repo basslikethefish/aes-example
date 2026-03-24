@@ -7,7 +7,7 @@
     "dev": "npm run generate && next dev --port 4200",
     "generate": "dotenv -e .env.local -- node ./scripts/generate.cjs",
     "sync:makeswift": "dotenv -e .env.local -- tsx ./scripts/sync-makeswift-products.ts",
-    "build": "npm run generate && npm run sync:makeswift && next build",
+    "build": "npm run generate && (npm run sync:makeswift || echo 'Makeswift sync skipped (page-types API unavailable)') && next build",
     "build:analyze": "ANALYZE=true npm run build",
     "start": "next start --port 4200",
     "lint": "next lint",
