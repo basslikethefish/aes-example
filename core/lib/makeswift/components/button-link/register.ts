@@ -1,4 +1,4 @@
-import { Link, Select, Style, TextInput } from '@makeswift/runtime/controls';
+import { Image, Link, Select, Style, TextInput } from '@makeswift/runtime/controls';
 import { MakeswiftComponentType } from '@makeswift/runtime/react/builtins';
 
 import { runtime } from '~/lib/makeswift/runtime';
@@ -11,8 +11,9 @@ runtime.registerComponent(MSButtonLink, {
   icon: 'button',
   props: {
     className: Style({ properties: [Style.Margin] }),
-    link: Link({ label: 'Link' }),
     text: TextInput({ label: 'Button text', defaultValue: 'Button text' }),
+    link: Link({ label: 'Link' }),
+    downloadFile: Image({ label: 'Download file' }),
     variant: Select({
       label: 'Color',
       options: [
