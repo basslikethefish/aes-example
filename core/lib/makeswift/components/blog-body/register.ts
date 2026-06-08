@@ -9,7 +9,7 @@ export const BLOG_BODY_COMPONENT_TYPE = 'catalyst-blog-body';
 runtime.registerComponent(BlogBody, {
   type: BLOG_BODY_COMPONENT_TYPE,
   label: 'Blog Body',
-  icon: 'document',
+  icon: 'text',
   props: {
     className: Style({ properties: Style.Default }),
     children: Slot(),

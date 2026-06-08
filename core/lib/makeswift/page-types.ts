@@ -18,6 +18,7 @@ interface PageTypeConfig {
   name: string;
   managedBy: 'makeswift' | 'external';
   externalSource?: string;
+  externalSourceViewUrlTemplate?: string;
   sortOrder?: number;
   icon?: string;
 }
@@ -75,9 +76,21 @@ export async function ensurePageType(config: PageTypeConfig): Promise<PageType> 
   });
 
   if (getResponse.ok) {
+    const existing = (await getResponse.json()) as PageType & { externalSourceViewUrlTemplate?: string };
     console.log(`Page type "${config.slug}" already exists`);
 
-    return (await getResponse.json()) as PageType;
+    // Optionally update the template so "View source" works (e.g. after adding env var)
+    if (config.externalSourceViewUrlTemplate != null) {
+      const patchResponse = await fetch(`${MAKESWIFT_API_ORIGIN}/v1/page-types/${existing.id}`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ externalSourceViewUrlTemplate: config.externalSourceViewUrlTemplate }),
+      });
+      if (patchResponse.ok) {
+        return (await patchResponse.json()) as PageType;
+      }
+    }
+    return existing;
   }
 
   if (getResponse.status !== 404) {
@@ -112,12 +125,21 @@ export async function ensurePageType(config: PageTypeConfig): Promise<PageType> 
  * Ensures the "products" page type exists in Makeswift.
  * Creates it if it doesn't exist, or returns the existing one.
  */
+/**
+ * BigCommerce product edit URL template. {{externalId}} is replaced with the product's entity ID.
+ * Set BIGCOMMERCE_VIEW_PRODUCT_URL_TEMPLATE in env to override (e.g. with your store hash).
+ */
+const BIGCOMMERCE_VIEW_PRODUCT_URL_TEMPLATE =
+  process.env.BIGCOMMERCE_VIEW_PRODUCT_URL_TEMPLATE ||
+  'https://login.bigcommerce.com/app/default/manage/catalog/products/{{externalId}}';
+
 export async function ensureProductPageType(): Promise<PageType> {
   return ensurePageType({
     slug: 'products',
     name: 'Products',
     managedBy: 'external',
-    externalSource: 'bigcommerce',
+    externalSource: 'BigCommerce',
+    externalSourceViewUrlTemplate: BIGCOMMERCE_VIEW_PRODUCT_URL_TEMPLATE,
     sortOrder: 1,
     icon: 'shopping-cart',
   });
@@ -151,11 +173,10 @@ export async function syncProductsToMakeswift(
 ): Promise<SyncResult> {
   const { removeOrphans = false } = options;
 
-  // Transform products to sync format
-  // Use the product's actual path from BigCommerce (e.g., "/african-fig/")
-  // Remove leading/trailing slashes for Makeswift pathname format
+  // Transform products to sync format.
+  // externalId is the numeric entityId so "View source" can open the BigCommerce product edit URL.
   const pages: SyncPage[] = products.map((product) => ({
-    externalId: `bc-${product.entityId}`,
+    externalId: String(product.entityId),
     pathname: product.path.replace(/^\/|\/$/g, ''), // "/african-fig/" -> "african-fig"
     name: product.name,
     metadata: {

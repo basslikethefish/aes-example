@@ -141,7 +141,7 @@ export default async function RootLayout({ params, children }: Props) {
       </head>
       <body className="flex min-h-screen flex-col">
         <NextIntlClientProvider messages={messages}>
-          <MakeswiftProvider siteVersion={siteVersion}>
+          <MakeswiftProvider siteVersion={siteVersion} appOrigin={process.env.MAKESWIFT_APP_ORIGIN}>
             <SiteThemeComponent />
             <ConsentManager isCookieConsentEnabled={isCookieConsentEnabled} scripts={scripts}>
               <NuqsAdapter>

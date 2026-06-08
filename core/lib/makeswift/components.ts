@@ -2,6 +2,7 @@ import './components/accordion/register';
 import './components/blog-body/register';
 import './components/blog-post-content/register';
 import './components/button-link/register';
+import './components/code-block/register';
 import './components/card/register';
 import './components/card-carousel/register';
 import './components/carousel/register';

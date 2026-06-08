@@ -2,14 +2,25 @@ import { Group, Image, Link, List, Slot, Style, TextInput } from '@makeswift/run
 
 import { runtime } from '~/lib/makeswift/runtime';
 
-import { MakeswiftBlogPostContent } from './blog-post-content';
+import { MakeswiftBlogPostContent } from './client';
 
-export const BLOG_POST_CONTENT_COMPONENT_TYPE = 'catalyst-blog-post-content';
+export const COMPONENT_TYPE = 'catalyst-blog-post-content';
 
+/**
+ * Blog Page Component
+ *
+ * This component renders the complete blog post including header (title, author, date,
+ * featured image, tags, breadcrumbs) and a slot for body content.
+ *
+ * Each blog page gets its own instance of this component, so edits are unique per page.
+ * The metadata (Title, Description, Social Image) is edited via the right sidebar,
+ * NOT via this component.
+ */
 runtime.registerComponent(MakeswiftBlogPostContent, {
-  type: BLOG_POST_CONTENT_COMPONENT_TYPE,
-  label: 'Blog Post Content',
-  icon: 'document',
+  type: COMPONENT_TYPE,
+  label: 'Blog Page',
+  hidden: true,
+  icon: 'text',
   props: {
     className: Style({ properties: Style.Default }),
     title: TextInput({
@@ -31,7 +42,6 @@ runtime.registerComponent(MakeswiftBlogPostContent, {
     image: Image({
       label: 'Featured Image',
     }),
-    children: Slot(),
     tags: List({
       label: 'Tags',
       type: Group({
@@ -64,5 +74,6 @@ runtime.registerComponent(MakeswiftBlogPostContent, {
       }),
       getItemLabel: (item) => item?.label ?? 'Breadcrumb',
     }),
+    children: Slot(),
   },
 });
